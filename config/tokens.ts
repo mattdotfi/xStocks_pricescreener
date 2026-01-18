@@ -24,8 +24,8 @@ export const TOKENS: Record<string, TokenConfig> = {
       address: 'XsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB',
     },
     cex: {
-      bybit: 'TSLAUSDT',
-      kraken: 'TSLAUSD',
+      bybit: 'TSLAXUSDT',
+      kraken: 'TSLAXUSD',
     },
   },
   NVDA: {
@@ -35,11 +35,11 @@ export const TOKENS: Record<string, TokenConfig> = {
       address: '0x93e62845c1dd5822ebc807ab71a5fb750decd15a',
     },
     solana: {
-      address: '0xc845b2894dbddd03858fd2d643b4ef725fe0849d',
+      address: 'Xsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh',
     },
     cex: {
-      bybit: 'NVDAUSDT',
-      kraken: 'NVDAUSD',
+      bybit: 'NVDAXUSDT',
+      kraken: 'NVDAXUSD',
     },
   },
   SPY: {
@@ -49,11 +49,11 @@ export const TOKENS: Record<string, TokenConfig> = {
       address: '0xc88fcd8b874fdb3256e8b55b3decb8c24eab4c02',
     },
     solana: {
-      address: '0x90a2a4c76b5d8c0bc892a69ea28aa775a8f2dd48',
+      address: 'XsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W',
     },
     cex: {
-      bybit: 'SPYUSDT',
-      kraken: 'SPYUSD',
+      bybit: 'SPYXUSDT',
+      kraken: 'SPYXUSD',
     },
   },
   AAPL: {
@@ -66,8 +66,8 @@ export const TOKENS: Record<string, TokenConfig> = {
       address: 'XsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp',
     },
     cex: {
-      bybit: 'AAPLUSDT',
-      kraken: 'AAPLUSD',
+      bybit: 'AAPLXUSDT',
+      kraken: 'AAPLXUSD',
     },
   },
 };
@@ -89,9 +89,9 @@ export const API_CONFIG = {
     ethereumChainId: '1', // Ethereum mainnet
   },
   jupiter: {
-    apiUrl: 'https://api.jup.ag',
-    quoteEndpoint: '/quote/v6/quote',
-    priceEndpoint: '/price/v2',
+    apiUrl: 'https://quote-api.jup.ag/v6',
+    quoteEndpoint: '/quote',
+    priceEndpoint: '/price',
   },
   twelveData: {
     apiUrl: 'https://api.twelvedata.com',

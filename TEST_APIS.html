@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xStocks API Tester</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { color: #00ffff; }
+        h2 { color: #ffff00; margin-top: 30px; }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #00cc00; }
+        .result {
+            background: #000;
+            border: 1px solid #00ff00;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { border-color: #00ff00; }
+        .error { border-color: #ff0000; color: #ff0000; }
+        .warning { border-color: #ffff00; color: #ffff00; }
+        pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+        .status { font-weight: bold; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 xStocks API Tester</h1>
+    <p>Test each API endpoint to verify if your xStocks tokens are actually available.</p>
+
+    <h2>1. Bybit API Tests</h2>
+    <button onclick="testBybit('BTCUSDT')">Test BTC (Control)</button>
+    <button onclick="testBybit('TSLAXUSDT')">Test TSLAx</button>
+    <button onclick="testBybit('NVDAXUSDT')">Test NVDAx</button>
+    <button onclick="testBybit('SPYXUSDT')">Test SPYx</button>
+    <button onclick="testBybit('AAPLXUSDT')">Test AAPLx</button>
+    <div id="bybit-result" class="result"></div>
+
+    <h2>2. Kraken API Tests</h2>
+    <button onclick="testKraken('XBTUSDT')">Test BTC (Control)</button>
+    <button onclick="testKraken('TSLAXUSD')">Test TSLAx</button>
+    <button onclick="testKraken('NVDAXUSD')">Test NVDAx</button>
+    <button onclick="testKraken('SPYXUSD')">Test SPYx</button>
+    <button onclick="testKraken('AAPLXUSD')">Test AAPLx</button>
+    <div id="kraken-result" class="result"></div>
+
+    <h2>3. KyberSwap API Tests</h2>
+    <button onclick="testKyberSwap('0x8ad3c73f833d3f9a523ab01476625f269aeb7cf0', 'TSLAx')">Test TSLAx</button>
+    <button onclick="testKyberSwap('0x93e62845c1dd5822ebc807ab71a5fb750decd15a', 'NVDAx')">Test NVDAx</button>
+    <button onclick="testKyberSwap('0xc88fcd8b874fdb3256e8b55b3decb8c24eab4c02', 'SPYx')">Test SPYx</button>
+    <button onclick="testKyberSwap('0x9d275685dc284c8eb1c79f6aba7a63dc75ec890a', 'AAPLx')">Test AAPLx</button>
+    <div id="kyberswap-result" class="result"></div>
+
+    <h2>4. Jupiter API Tests</h2>
+    <button onclick="testJupiter('XsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB', 'TSLAx')">Test TSLAx</button>
+    <button onclick="testJupiter('Xsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh', 'NVDAx')">Test NVDAx</button>
+    <button onclick="testJupiter('XsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W', 'SPYx')">Test SPYx</button>
+    <button onclick="testJupiter('XsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp', 'AAPLx')">Test AAPLx</button>
+    <div id="jupiter-result" class="result"></div>
+
+    <script>
+        async function testBybit(symbol) {
+            const resultDiv = document.getElementById('bybit-result');
+            resultDiv.innerHTML = '<div class="status">Testing Bybit: ' + symbol + '...</div>';
+
+            try {
+                const response = await fetch(`https://api.bybit.com/v5/market/tickers?category=spot&symbol=${symbol}`);
+                const data = await response.json();
+
+                if (data.retCode === 0 && data.result.list.length > 0) {
+                    const ticker = data.result.list[0];
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <div class="status">✅ SUCCESS: ${symbol} EXISTS on Bybit!</div>
+                        <pre>Price: $${ticker.lastPrice}
+Volume 24h: ${ticker.volume24h}
+Symbol: ${ticker.symbol}</pre>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <div class="status">❌ FAILED: ${symbol} NOT FOUND on Bybit</div>
+                        <pre>Error: ${data.retMsg || 'Symbol not supported'}
+
+This means the token is NOT listed on Bybit with this symbol.
+Try checking the Bybit website to verify if it exists with a different name.</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<div class="status">❌ ERROR</div><pre>${error.message}</pre>`;
+            }
+        }
+
+        async function testKraken(pair) {
+            const resultDiv = document.getElementById('kraken-result');
+            resultDiv.innerHTML = '<div class="status">Testing Kraken: ' + pair + '...</div>';
+
+            try {
+                const response = await fetch(`https://api.kraken.com/0/public/Ticker?pair=${pair}`);
+                const data = await response.json();
+
+                if (data.error.length === 0 && Object.keys(data.result).length > 0) {
+                    const key = Object.keys(data.result)[0];
+                    const ticker = data.result[key];
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <div class="status">✅ SUCCESS: ${pair} EXISTS on Kraken!</div>
+                        <pre>Price: $${ticker.c[0]}
+Volume 24h: ${ticker.v[1]}
+Pair: ${key}</pre>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <div class="status">❌ FAILED: ${pair} NOT FOUND on Kraken</div>
+                        <pre>Error: ${data.error.join(', ') || 'Pair not found'}
+
+This means the token is NOT listed on Kraken with this symbol.
+Kraken also tried: ${pair}, X${pair}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<div class="status">❌ ERROR</div><pre>${error.message}</pre>`;
+            }
+        }
+
+        async function testKyberSwap(tokenAddress, symbol) {
+            const resultDiv = document.getElementById('kyberswap-result');
+            resultDiv.innerHTML = '<div class="status">Testing KyberSwap: ' + symbol + '...</div>';
+
+            const USDT = '0xdac17f958d2ee523a2206206994597c13d831ec7';
+            const url = `https://aggregator-api.kyberswap.com/ethereum/api/v1/routes?tokenIn=${tokenAddress}&tokenOut=${USDT}&amountIn=1000000000000000000&saveGas=false&gasInclude=true`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok && data.code === 0 && data.data) {
+                    const route = data.data.routeSummary;
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <div class="status">✅ SUCCESS: ${symbol} HAS LIQUIDITY on KyberSwap!</div>
+                        <pre>Output USD: $${route.amountOutUsd}
+Gas USD: $${route.gasUsd}
+Route: ${route.route.length} hops
+Exchanges: ${route.route.flat().map(r => r.exchange).join(', ')}</pre>
+                    `;
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.innerHTML = `
+                        <div class="status">⚠️ WARNING: ${symbol} - No route found on KyberSwap</div>
+                        <pre>Status: ${response.status}
+Message: ${data.message || 'No liquidity or route available'}
+
+This could mean:
+- Token has no liquidity pools
+- Token has insufficient liquidity
+- Token address is incorrect</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<div class="status">❌ ERROR</div><pre>${error.message}</pre>`;
+            }
+        }
+
+        async function testJupiter(tokenAddress, symbol) {
+            const resultDiv = document.getElementById('jupiter-result');
+            resultDiv.innerHTML = '<div class="status">Testing Jupiter: ' + symbol + '...</div>';
+
+            const USDC = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+            const url = `https://quote-api.jup.ag/v6/quote?inputMint=${tokenAddress}&outputMint=${USDC}&amount=1000000&slippageBps=50`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok && data.outAmount) {
+                    const price = (parseInt(data.outAmount) / 1000000) / (parseInt(data.inAmount) / 1000000);
+                    const sources = data.routePlan.map(r => r.swapInfo.label).join(', ');
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <div class="status">✅ SUCCESS: ${symbol} HAS LIQUIDITY on Jupiter!</div>
+                        <pre>Price: $${price.toFixed(4)}
+Output: ${parseInt(data.outAmount) / 1000000} USDC
+Sources: ${sources}
+Price Impact: ${data.priceImpactPct}%</pre>
+                    `;
+                } else {
+                    resultDiv.className = 'result warning';
+                    resultDiv.innerHTML = `
+                        <div class="status">⚠️ WARNING: ${symbol} - No quote available</div>
+                        <pre>Status: ${response.status}
+Error: ${data.error || data.message || 'No quote available'}
+
+This could mean:
+- Token has no liquidity
+- Token address is incorrect
+- Token is not tradable</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<div class="status">❌ ERROR</div><pre>${error.message}</pre>`;
+            }
+        }
+    </script>
+</body>
+</html>

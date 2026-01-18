@@ -59,7 +59,7 @@ export async function fetchJupiterPriceViaQuote(
   amountIn: number = 1000000 // 1 token with 6 decimals (common for Solana tokens)
 ): Promise<Price | null> {
   try {
-    const url = `${API_CONFIG.jupiter.apiUrl}/quote`;
+    const url = `${API_CONFIG.jupiter.apiUrl}${API_CONFIG.jupiter.quoteEndpoint}`;
 
     const response = await axios.get<JupiterQuoteResponse>(url, {
       params: {
@@ -115,37 +115,9 @@ export async function fetchJupiterPrice(
   tokenAddress: string,
   tokenSymbol: string
 ): Promise<Price | null> {
-  try {
-    const url = `${API_CONFIG.jupiter.apiUrl}/price`;
-
-    const response = await axios.get<JupiterPriceResponse>(url, {
-      params: {
-        ids: tokenAddress,
-        vsToken: REFERENCE_TOKENS.solana.USDC,
-      },
-      timeout: 10000,
-    });
-
-    if (!response.data || !response.data.data || !response.data.data[tokenAddress]) {
-      console.error(`Jupiter price API error for ${tokenSymbol}: No price data`);
-      // Fallback to quote API
-      return fetchJupiterPriceViaQuote(tokenAddress, tokenSymbol);
-    }
-
-    const priceData = response.data.data[tokenAddress];
-
-    return {
-      symbol: tokenSymbol,
-      price: priceData.price,
-      timestamp: Date.now(),
-      source: 'Jupiter',
-      sourceType: 'DEX',
-    };
-  } catch (error) {
-    console.error(`Error fetching Jupiter price for ${tokenSymbol}, trying quote API:`, error);
-    // Fallback to quote API
-    return fetchJupiterPriceViaQuote(tokenAddress, tokenSymbol);
-  }
+  // The price API endpoint now requires authentication
+  // Use quote API directly for public price data
+  return fetchJupiterPriceViaQuote(tokenAddress, tokenSymbol);
 }
 
 /**
