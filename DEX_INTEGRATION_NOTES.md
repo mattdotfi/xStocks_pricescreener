@@ -3,7 +3,20 @@
 ## 🔍 Important Context About xStocks Tokens
 
 ### What are Rebasing Tokens?
-Some xStocks tokens (TSLAx, NVDAx, SPYx) are **rebasing tokens**, which means their balance automatically adjusts to reflect the price of the underlying stock. This creates special challenges for DEX trading.
+**ALL xStocks tokens (TSLAx, NVDAx, SPYx, AAPLx) are rebasing tokens** on both Ethereum and Solana. This means their balance automatically adjusts to reflect the price of the underlying stock.
+
+### How Rebasing is Handled:
+
+#### **Ethereum**: Wrapped Token System
+- Rebasing tokens need to be **wrapped** before trading in pools
+- Unwrapped after the trade completes
+- KyberSwap aggregator handles this automatically
+
+#### **Solana**: ScaledUI Technology
+- Uses **ScaledUI** tech built into the **token2024 standard**
+- Handles rebasing **natively** - NO wrapping needed!
+- Trades happen directly with the token
+- Much simpler and more efficient
 
 ---
 
@@ -11,10 +24,10 @@ Some xStocks tokens (TSLAx, NVDAx, SPYx) are **rebasing tokens**, which means th
 
 ### How It Works:
 
-#### **Wrapped Token Routing**
-For rebasing tokens (SPYx, NVDAx, TSLAx):
-1. **Token is wrapped** before trading on Uniswap V3 pools
-2. **Trade happens** with wrapped version
+#### **Wrapped Token Routing (For Pool Trading)**
+When using liquidity pools (e.g., Uniswap V3):
+1. **Token is wrapped** before trading
+2. **Trade happens** with wrapped version in the pool
 3. **Token is unwrapped** at the end of the route
 4. **Final price** reflects the unwrapped token value
 
@@ -26,11 +39,21 @@ User Token → Wrap Contract → Uniswap V3 Pool → Unwrap Contract → USDT
 KyberSwap's aggregator automatically handles this entire route!
 
 #### **RFQ (Request for Quote) Support**
-For AAPLx:
-- Uses **UniX** (Uniswap RFQ aggregator)
-- Gets quotes directly from market makers
-- Often provides better pricing than pools
-- Our code detects RFQ routes and shows a badge
+xStocks tokens may be available via **RFQ**, **pools**, or **both**:
+
+- **RFQ Only**: Token only available through market makers (UniX)
+- **Pools Only**: Token only available in AMM pools (Uniswap V3 with wrapping)
+- **Both RFQ + Pools**: KyberSwap picks the best price
+
+**RFQ Advantages:**
+- Direct quotes from market makers
+- Often better pricing than pools
+- No wrapping needed (direct token trading)
+- Our code detects RFQ routes and shows a purple badge
+
+**Which tokens use which?**
+- Varies by token and liquidity availability
+- KyberSwap automatically checks both and returns the best price
 
 ### What Our Code Does:
 ```typescript
@@ -53,17 +76,30 @@ The API handles all complexity - we just get the final price! ✅
 
 ### How It Works:
 
+**Key Difference: NO Wrapping Needed!** 🎉
+
+On Solana, xStocks tokens use the **token2024 standard** with **ScaledUI technology**, which handles rebasing natively. This means:
+- ✅ Direct trading without wrapping
+- ✅ Simpler and faster swaps
+- ✅ Lower transaction costs
+
 Jupiter aggregates multiple liquidity sources and picks the best:
 
 #### **Raydium (Pools)**
 - Traditional AMM pools
 - On-chain liquidity
+- **Direct token trading** (no wrapping!)
 - Standard swap routing
 
 #### **JupZ (RFQ)**
 - Request for Quote system
 - Off-chain market makers
 - Often better for larger trades
+- **Direct token trading** (no wrapping!)
+
+**Which tokens use which?**
+- Varies by token and liquidity availability
+- Jupiter automatically checks both and returns the best price
 
 ### What Our Code Does:
 ```typescript
@@ -73,8 +109,8 @@ outputMint: USDC,            // Target USDC
 amount: 1 token              // Quote for 1 token
 
 // Jupiter automatically:
-// 1. Checks Raydium pools
-// 2. Checks JupZ RFQ quotes
+// 1. Checks Raydium pools (direct, no wrapping!)
+// 2. Checks JupZ RFQ quotes (direct, no wrapping!)
 // 3. Returns best available price
 ```
 
@@ -104,18 +140,26 @@ AAPLx:  XsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp
 
 ## 🎯 Why This Matters
 
-### For KyberSwap:
-- **Rebasing tokens** (TSLAx, NVDAx, SPYx) need wrapping/unwrapping
-- **Non-rebasing** (AAPLx) can use direct RFQ
+### For KyberSwap (Ethereum):
+- **ALL xStocks tokens are rebasing** (TSLAx, NVDAx, SPYx, AAPLx)
+- **Pool trading** requires wrapping/unwrapping
+- **RFQ trading** can happen directly (no wrapping)
+- **Availability varies** by token:
+  - Some have only RFQ
+  - Some have only pools (with wrapping)
+  - Some have both (aggregator picks best)
 - Our aggregator API call handles ALL of this automatically
 - We just request: "Give me price for this token in USDT"
-- KyberSwap figures out: wrap → route → unwrap → price
+- KyberSwap figures out: best route (RFQ or pools) → wrapping if needed → price
 
-### For Jupiter:
-- Automatically checks **both pools AND RFQ**
+### For Jupiter (Solana):
+- **ALL xStocks tokens are rebasing** BUT use **ScaledUI** (token2024 standard)
+- **NO wrapping needed** - rebasing handled natively! 🎉
+- Automatically checks **both Raydium pools AND JupZ RFQ**
 - Returns best available price
 - We don't need to specify which to use
 - Jupiter optimizes the route for us
+- Much simpler than Ethereum!
 
 ---
 
@@ -143,12 +187,23 @@ No need to manually calculate - the aggregator does it! ✅
 
 ## 💡 Key Takeaways
 
-1. **Wrapped Token Handling**: Automatic via aggregator APIs
+### Rebasing Technology:
+1. **Ethereum (ALL tokens)**: Rebasing requires wrapping for pool trading, but RFQ can trade directly
+2. **Solana (ALL tokens)**: ScaledUI in token2024 standard - NO wrapping ever needed!
+
+### Liquidity Sources:
+1. **KyberSwap**: May use RFQ only, pools only, or both (varies by token)
+2. **Jupiter**: May use Raydium pools, JupZ RFQ, or both (varies by token)
+
+### Automation:
+1. **Wrapped Token Handling**: Automatic via aggregator APIs (Ethereum only)
 2. **RFQ Support**: Automatic - we just detect it in the response
 3. **Best Route Selection**: Automatic - aggregators optimize for us
 4. **Price Calculation**: Simple - APIs return USD values directly
 
 **Bottom Line:** The aggregator APIs abstract away all the complexity. We just need correct token addresses! 🎉
+
+**Solana Advantage:** Thanks to ScaledUI technology, Solana xStocks are simpler to trade (no wrapping) while still maintaining rebasing functionality!
 
 ---
 
