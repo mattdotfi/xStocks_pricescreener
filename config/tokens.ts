@@ -35,7 +35,7 @@ export const TOKENS: Record<string, TokenConfig> = {
       address: '0x93e62845c1dd5822ebc807ab71a5fb750decd15a',
     },
     solana: {
-      address: '0xc845b2894dbddd03858fd2d643b4ef725fe0849d',
+      address: 'Xsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh',
     },
     cex: {
       bybit: 'NVDAXUSDT',
@@ -49,7 +49,7 @@ export const TOKENS: Record<string, TokenConfig> = {
       address: '0xc88fcd8b874fdb3256e8b55b3decb8c24eab4c02',
     },
     solana: {
-      address: '0x90a2a4c76b5d8c0bc892a69ea28aa775a8f2dd48',
+      address: 'XsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W',
     },
     cex: {
       bybit: 'SPYXUSDT',
