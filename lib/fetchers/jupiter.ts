@@ -59,7 +59,7 @@ export async function fetchJupiterPriceViaQuote(
   amountIn: number = 1000000 // 1 token with 6 decimals (common for Solana tokens)
 ): Promise<Price | null> {
   try {
-    const url = `${API_CONFIG.jupiter.apiUrl}/quote`;
+    const url = `${API_CONFIG.jupiter.apiUrl}${API_CONFIG.jupiter.quoteEndpoint}`;
 
     const response = await axios.get<JupiterQuoteResponse>(url, {
       params: {
@@ -116,7 +116,7 @@ export async function fetchJupiterPrice(
   tokenSymbol: string
 ): Promise<Price | null> {
   try {
-    const url = `${API_CONFIG.jupiter.apiUrl}/price`;
+    const url = `${API_CONFIG.jupiter.apiUrl}${API_CONFIG.jupiter.priceEndpoint}`;
 
     const response = await axios.get<JupiterPriceResponse>(url, {
       params: {
