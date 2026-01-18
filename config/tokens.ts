@@ -89,7 +89,7 @@ export const API_CONFIG = {
     ethereumChainId: '1', // Ethereum mainnet
   },
   jupiter: {
-    apiUrl: 'https://quote-api.jup.ag/v6',
+    apiUrl: 'https://api.jup.ag/swap/v1',
     quoteEndpoint: '/quote',
     priceEndpoint: '/price',
   },
