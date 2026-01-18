@@ -1,7 +1,7 @@
 import { Price, PriceComparison, ArbitrageOpportunity } from '@/types/price';
 import { TOKENS, TokenConfig } from '@/config/tokens';
 import { fetchBybitPrice } from './fetchers/bybit';
-import { fetchKrakenPrice } from './fetchers/kraken';
+// import { fetchKrakenPrice } from './fetchers/kraken'; // Disabled: xStocks not available on Kraken
 import { fetchKyberSwapPrice } from './fetchers/kyberswap';
 import { fetchJupiterPrice } from './fetchers/jupiter';
 import { fetchStockPrice } from './fetchers/stocks';
@@ -19,10 +19,10 @@ export async function fetchAllPricesForToken(tokenKey: string): Promise<PriceCom
   }
 
   // Fetch all prices in parallel where possible
-  const [stockPrice, bybitPrice, krakenPrice, kyberswapPrice, jupiterPrice] = await Promise.all([
+  // Note: Kraken removed - xStocks tokens not available on Kraken
+  const [stockPrice, bybitPrice, kyberswapPrice, jupiterPrice] = await Promise.all([
     fetchStockPrice(token.stockSymbol),
     fetchBybitPrice(token.cex.bybit),
-    fetchKrakenPrice(token.cex.kraken),
     fetchKyberSwapPrice(token.ethereum.address, token.symbol),
     fetchJupiterPrice(token.solana.address, token.symbol),
   ]);
@@ -33,7 +33,7 @@ export async function fetchAllPricesForToken(tokenKey: string): Promise<PriceCom
     stockPrice,
     prices: {
       bybit: bybitPrice,
-      kraken: krakenPrice,
+      kraken: null, // Disabled: xStocks not available on Kraken
       kyberswap: kyberswapPrice,
       jupiter: jupiterPrice,
     },
