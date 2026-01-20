@@ -33,15 +33,10 @@ export function TokenComparison({ comparison }: TokenComparisonProps) {
       </div>
 
       {/* Price Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <PriceCard
           label="Bybit (USDT)"
           price={comparison.prices.bybit}
-          stockPrice={stockPrice}
-        />
-        <PriceCard
-          label="Kraken Pro (USD)"
-          price={comparison.prices.kraken}
           stockPrice={stockPrice}
         />
         <PriceCard

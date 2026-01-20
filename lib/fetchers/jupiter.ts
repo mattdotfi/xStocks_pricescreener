@@ -61,6 +61,20 @@ export async function fetchJupiterPriceViaQuote(
   try {
     const url = `${API_CONFIG.jupiter.apiUrl}${API_CONFIG.jupiter.quoteEndpoint}`;
 
+    // Check for API key (required as of Jan 31, 2026)
+    const jupiterApiKey = process.env.JUPITER_API_KEY;
+
+    const headers: Record<string, string> = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': 'application/json',
+      'Accept-Language': 'en-US,en;q=0.9',
+    };
+
+    // Add API key header if available
+    if (jupiterApiKey) {
+      headers['x-api-key'] = jupiterApiKey;
+    }
+
     const response = await axios.get<JupiterQuoteResponse>(url, {
       params: {
         inputMint: tokenAddress,
@@ -68,11 +82,7 @@ export async function fetchJupiterPriceViaQuote(
         amount: amountIn,
         slippageBps: 50, // 0.5% slippage
       },
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/json',
-        'Accept-Language': 'en-US,en;q=0.9',
-      },
+      headers,
       timeout: 15000,
     });
 
@@ -102,7 +112,11 @@ export async function fetchJupiterPriceViaQuote(
     };
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error(`Error fetching Jupiter quote for ${tokenSymbol}:`, error.response?.data || error.message);
+      if (error.response?.status === 401) {
+        console.error(`Jupiter API error for ${tokenSymbol}: Unauthorized. API key required. Get one at https://portal.jup.ag and add to .env as JUPITER_API_KEY`);
+      } else {
+        console.error(`Error fetching Jupiter quote for ${tokenSymbol}:`, error.response?.data || error.message);
+      }
     } else {
       console.error(`Error fetching Jupiter quote for ${tokenSymbol}:`, error);
     }
