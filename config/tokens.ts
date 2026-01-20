@@ -50,7 +50,7 @@ export const TOKENS: Record<string, TokenConfig> = {
       address: 'XsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W',
     },
     cex: {
-      bybit: 'SPYXUSDT', // Note: Not actually listed on Bybit
+      bybit: 'SPYXUSDT',
     },
   },
   AAPL: {
@@ -63,7 +63,7 @@ export const TOKENS: Record<string, TokenConfig> = {
       address: 'XsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp',
     },
     cex: {
-      bybit: 'AAPLXUSDT', // Note: Not actually listed on Bybit
+      bybit: 'AAPLXUSDT',
     },
   },
 };
