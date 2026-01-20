@@ -50,15 +50,22 @@
     │ Prices │      │ Prices  │      │ MARKET  │
     └────────┘      └─────────┘      └─────────┘
          │                │                │
-    ┌────┴───┐      ┌────┴────┐          │
-    │        │      │         │          │
-    ▼        ▼      ▼         ▼          ▼
-┌───────┬────────┬──────┬─────────┬──────────────┐
-│Bybit  │Kraken  │Kyber │Jupiter  │Twelve Data   │
-│       │Pro     │Swap  │         │              │
-│USDT   │USD     │ETH   │SOL      │Traditional   │
-│pairs  │pairs   │+RFQ  │         │Stock Prices  │
-└───────┴────────┴──────┴─────────┴──────────────┘
+    │                │                │
+    ▼                ▼                ▼
+┌───────────┬──────────────┬──────────────┐
+│  Bybit    │  KyberSwap   │ Twelve Data  │
+│           │              │              │
+│  USDT     │  Ethereum    │ Traditional  │
+│  pairs    │  DEX + RFQ   │ Stock Prices │
+└───────────┴──────────────┴──────────────┘
+                           │
+                           ▼
+                    ┌──────────┐
+                    │ Jupiter  │
+                    │          │
+                    │  Solana  │
+                    │   DEX    │
+                    └──────────┘
 ```
 
 ## Data Flow
@@ -69,7 +76,7 @@
 Browser → API Request → /api/prices
 ```
 
-### 2. Server Fetches All Prices (4 tokens × 5 sources = 20 API calls)
+### 2. Server Fetches All Prices (4 tokens × 4 sources = 16 API calls)
 
 For each token (TSLAx, NVDAx, SPYx, AAPLx):
 
@@ -77,11 +84,11 @@ For each token (TSLAx, NVDAx, SPYx, AAPLx):
 // Parallel fetching
 Promise.all([
   fetchStockPrice('TSLA'),      // Twelve Data API
-  fetchBybitPrice('TSLAUSDT'),  // Bybit public API
-  fetchKrakenPrice('TSLAUSD'),  // Kraken public API
+  fetchBybitPrice('TSLAXUSDT'), // Bybit public API (Note: only TSLAx and NVDAx available)
   fetchKyberSwapPrice('0x8ad...', 'TSLAx'),  // KyberSwap + RFQ
   fetchJupiterPrice('XsDoV...', 'TSLAx')     // Jupiter aggregator
 ])
+// Note: Kraken removed - xStocks tokens not available on Kraken
 ```
 
 **Rate Limiting:**
@@ -128,7 +135,7 @@ For each pair of prices:
       "stockPrice": { ... },
       "prices": {
         "bybit": { ... },
-        "kraken": { ... },
+        "kraken": null,
         "kyberswap": { ... },
         "jupiter": { ... }
       },
@@ -149,15 +156,10 @@ For each pair of prices:
 
 ### Bybit (CEX)
 - **Endpoint:** `GET /v5/market/tickers`
-- **Pairs:** TSLAUSDT, NVDAUSDT, SPYUSDT, AAPLUSDT
+- **Pairs:** TSLAXUSDT, NVDAXUSDT (only these two available)
 - **Update:** Real-time
 - **Limit:** Public endpoint, no auth needed
-
-### Kraken Pro (CEX)
-- **Endpoint:** `GET /0/public/Ticker`
-- **Pairs:** TSLAUSD, NVDAUSD, SPYUSD, AAPLUSD
-- **Update:** Real-time
-- **Note:** Uses "convert" feature, not orderbook
+- **Note:** SPYx and AAPLx not listed on Bybit
 
 ### KyberSwap (DEX - Ethereum)
 - **Endpoint:** `GET /ethereum/api/v1/routes`
@@ -189,7 +191,6 @@ For each pair of prices:
 ```
 Stock Market (TSLA): $100.00
 Bybit (TSLAx):       $102.50
-Kraken (TSLAx):      $101.00
 KyberSwap (TSLAx):   $99.50
 Jupiter (TSLAx):     $100.25
 
@@ -197,11 +198,11 @@ Opportunities:
 1. Buy KyberSwap ($99.50) → Sell Bybit ($102.50)
    Spread: 3.0% | Profit: $3.00 per token
 
-2. Buy KyberSwap ($99.50) → Sell Kraken ($101.00)
-   Spread: 1.5% | Profit: $1.50 per token
+2. Buy KyberSwap ($99.50) → Sell Stock Market ($100.00)
+   Spread: 0.5% | Profit: $0.50 per token
 
-3. Buy KyberSwap ($99.50) → Sell Jupiter ($100.25)
-   Spread: 0.75% | Profit: $0.75 per token
+3. Buy Jupiter ($100.25) → Sell Bybit ($102.50)
+   Spread: 2.24% | Profit: $2.25 per token
 ```
 
 ## UI Features
@@ -253,4 +254,4 @@ The UI:
 
 ---
 
-**Summary:** The system fetches prices from 5 sources for 4 tokens, compares them, identifies arbitrage opportunities, and displays everything in an easy-to-read dashboard with real-time updates.
+**Summary:** The system fetches prices from 4 sources (Stock Market, Bybit, KyberSwap, Jupiter) for 4 tokens (TSLAx, NVDAx, SPYx, AAPLx), compares them, identifies arbitrage opportunities, and displays everything in an easy-to-read dashboard with real-time updates. Note that Bybit only lists TSLAx and NVDAx.

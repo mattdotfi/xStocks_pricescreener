@@ -5,9 +5,10 @@ A real-time price comparison and arbitrage detection tool for tokenized stocks (
 ## Features
 
 - **Multi-Platform Price Tracking:**
-  - **CEXes:** Bybit (USDT pairs), Kraken Pro (USD pairs)
+  - **CEXes:** Bybit (USDT pairs - TSLAx and NVDAx only)
   - **DEXes:** KyberSwap on Ethereum (with RFQ support), Jupiter on Solana
   - **Traditional Markets:** Stock prices via Twelve Data API
+  - **Note:** Kraken removed - xStocks tokens not available there
 
 - **Arbitrage Detection:** Automatically identifies price discrepancies and calculates potential profit opportunities
 
@@ -72,12 +73,12 @@ npm start
 The tool fetches prices from multiple sources:
 
 1. **Bybit:** Uses public spot market API for USDT trading pairs
-2. **Kraken:** Fetches prices from their convert feature (USD pairs)
-3. **KyberSwap:** Queries the aggregator API for best routes on Ethereum
+   - Note: Only TSLAx and NVDAx are listed (SPYx and AAPLx not available)
+2. **KyberSwap:** Queries the aggregator API for best routes on Ethereum
    - Includes both on-chain pool prices and off-chain RFQ (Request for Quote) from market makers
    - Automatically finds the best route across multiple DEXes
-4. **Jupiter:** Uses Solana's top DEX aggregator for best prices
-5. **Twelve Data:** Fetches real-time stock market prices
+3. **Jupiter:** Uses Solana's top DEX aggregator for best prices
+4. **Twelve Data:** Fetches real-time stock market prices
 
 ### RFQ Support on KyberSwap
 
@@ -112,8 +113,7 @@ export const TOKENS: Record<string, TokenConfig> = {
     ethereum: { address: '0x...' },
     solana: { address: '...' },
     cex: {
-      bybit: 'TSLAUSDT',
-      kraken: 'TSLAUSD',
+      bybit: 'TSLAXUSDT',
     },
   },
   // ... more tokens
@@ -129,7 +129,7 @@ export const TOKENS: Record<string, TokenConfig> = {
 - **CEX/DEX APIs:** Generally have generous public endpoint limits
   - KyberSwap: No authentication required for aggregator API
   - Jupiter: No authentication required
-  - Bybit/Kraken: Public endpoints used
+  - Bybit: Public endpoints used
 
 ## Project Structure
 
@@ -150,7 +150,6 @@ export const TOKENS: Record<string, TokenConfig> = {
 │   ├── fetchers/            # Price fetcher modules
 │   │   ├── bybit.ts
 │   │   ├── jupiter.ts
-│   │   ├── kraken.ts
 │   │   ├── kyberswap.ts
 │   │   └── stocks.ts
 │   └── priceComparison.ts   # Price aggregation and arbitrage logic
