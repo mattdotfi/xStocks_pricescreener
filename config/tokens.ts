@@ -9,7 +9,7 @@ export interface TokenConfig {
   };
   cex: {
     bybit: string; // Trading pair on Bybit
-    kraken: string; // Trading pair on Kraken
+    // Note: Kraken removed - xStocks tokens not available on Kraken
   };
 }
 
@@ -25,7 +25,6 @@ export const TOKENS: Record<string, TokenConfig> = {
     },
     cex: {
       bybit: 'TSLAXUSDT',
-      kraken: 'TSLAXUSD',
     },
   },
   NVDA: {
@@ -39,7 +38,6 @@ export const TOKENS: Record<string, TokenConfig> = {
     },
     cex: {
       bybit: 'NVDAXUSDT',
-      kraken: 'NVDAXUSD',
     },
   },
   SPY: {
@@ -52,8 +50,7 @@ export const TOKENS: Record<string, TokenConfig> = {
       address: 'XsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W',
     },
     cex: {
-      bybit: 'SPYXUSDT',
-      kraken: 'SPYXUSD',
+      bybit: 'SPYXUSDT', // Note: Not actually listed on Bybit
     },
   },
   AAPL: {
@@ -66,8 +63,7 @@ export const TOKENS: Record<string, TokenConfig> = {
       address: 'XsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp',
     },
     cex: {
-      bybit: 'AAPLXUSDT',
-      kraken: 'AAPLXUSD',
+      bybit: 'AAPLXUSDT', // Note: Not actually listed on Bybit
     },
   },
 };
@@ -80,16 +76,13 @@ export const API_CONFIG = {
     baseUrl: 'https://api.bybit.com',
     publicEndpoint: '/v5/market/tickers',
   },
-  kraken: {
-    baseUrl: 'https://api.kraken.com',
-    publicEndpoint: '/0/public/Ticker',
-  },
+  // Kraken removed - xStocks tokens not available on Kraken
   kyberswap: {
     apiUrl: 'https://aggregator-api.kyberswap.com',
     ethereumChainId: '1', // Ethereum mainnet
   },
   jupiter: {
-    apiUrl: 'https://quote-api.jup.ag/v6',
+    apiUrl: 'https://api.jup.ag/swap/v1',
     quoteEndpoint: '/quote',
     priceEndpoint: '/price',
   },
