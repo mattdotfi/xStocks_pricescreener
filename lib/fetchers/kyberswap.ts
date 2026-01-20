@@ -51,66 +51,82 @@ export async function fetchKyberSwapPrice(
   tokenSymbol: string,
   amountIn: string = '1000000000000000000' // 1 token with 18 decimals
 ): Promise<Price | null> {
-  try {
-    const url = `${API_CONFIG.kyberswap.apiUrl}/${API_CONFIG.kyberswap.ethereumChainId}/api/v1/routes`;
+  // Try with USDC first, then fallback to USDT if it fails
+  const stablecoins = [
+    { symbol: 'USDC', address: REFERENCE_TOKENS.ethereum.USDC },
+    { symbol: 'USDT', address: REFERENCE_TOKENS.ethereum.USDT },
+  ];
 
-    // Get quote for selling 1 token for USDT
-    const response = await axios.get<KyberSwapRouteResponse>(url, {
-      params: {
-        tokenIn: tokenAddress,
-        tokenOut: REFERENCE_TOKENS.ethereum.USDT,
-        amountIn: amountIn,
-        saveGas: false,
-        gasInclude: true,
-        // Setting clientData to get RFQ quotes if available
-        clientData: JSON.stringify({
-          source: 'price-screener',
-        }),
-      },
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/json',
-        'Accept-Language': 'en-US,en;q=0.9',
-      },
-      timeout: 15000,
-    });
+  for (const stablecoin of stablecoins) {
+    try {
+      const url = `${API_CONFIG.kyberswap.apiUrl}/${API_CONFIG.kyberswap.ethereumChainId}/api/v1/routes`;
 
-    if (response.data.code !== 0 || !response.data.data) {
-      console.error(`KyberSwap API error for ${tokenSymbol}:`, response.data.message);
-      return null;
+      // Get quote for selling 1 token for stablecoin
+      const response = await axios.get<KyberSwapRouteResponse>(url, {
+        params: {
+          tokenIn: tokenAddress,
+          tokenOut: stablecoin.address,
+          amountIn: amountIn,
+          saveGas: false,
+          gasInclude: true,
+          // Setting clientData to get RFQ quotes if available
+          clientData: JSON.stringify({
+            source: 'price-screener',
+          }),
+        },
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'application/json',
+          'Accept-Language': 'en-US,en;q=0.9',
+        },
+        timeout: 15000,
+      });
+
+      if (response.data.code !== 0 || !response.data.data) {
+        // Try next stablecoin
+        continue;
+      }
+
+      const routeSummary = response.data.data.routeSummary;
+
+      // Calculate price: amountOut / amountIn (both in human readable format via USD)
+      const amountOutUsd = parseFloat(routeSummary.amountOutUsd);
+      const amountInUsd = parseFloat(routeSummary.amountInUsd);
+
+      // Price is how much USD we get for the token
+      const price = amountOutUsd;
+
+      // Check if route includes RFQ
+      const hasRFQ = routeSummary.route.some(path =>
+        path.some(hop => hop.poolType === 'rfq' || hop.exchange.toLowerCase().includes('rfq'))
+      );
+
+      return {
+        symbol: tokenSymbol,
+        price: price,
+        timestamp: Date.now(),
+        source: 'KyberSwap',
+        sourceType: 'DEX',
+        isRFQ: hasRFQ,
+        liquidity: amountOutUsd, // Approximate liquidity indicator
+      };
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          // Try next stablecoin
+          console.log(`KyberSwap: No route found for ${tokenSymbol} to ${stablecoin.symbol}, trying next...`);
+          continue;
+        }
+        console.error(`Error fetching KyberSwap price for ${tokenSymbol}:`, error.response?.data || error.message);
+      } else {
+        console.error(`Error fetching KyberSwap price for ${tokenSymbol}:`, error);
+      }
     }
-
-    const routeSummary = response.data.data.routeSummary;
-
-    // Calculate price: amountOut / amountIn (both in human readable format via USD)
-    const amountOutUsd = parseFloat(routeSummary.amountOutUsd);
-    const amountInUsd = parseFloat(routeSummary.amountInUsd);
-
-    // Price is how much USD we get for the token
-    const price = amountOutUsd;
-
-    // Check if route includes RFQ
-    const hasRFQ = routeSummary.route.some(path =>
-      path.some(hop => hop.poolType === 'rfq' || hop.exchange.toLowerCase().includes('rfq'))
-    );
-
-    return {
-      symbol: tokenSymbol,
-      price: price,
-      timestamp: Date.now(),
-      source: 'KyberSwap',
-      sourceType: 'DEX',
-      isRFQ: hasRFQ,
-      liquidity: amountOutUsd, // Approximate liquidity indicator
-    };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error(`Error fetching KyberSwap price for ${tokenSymbol}:`, error.response?.data || error.message);
-    } else {
-      console.error(`Error fetching KyberSwap price for ${tokenSymbol}:`, error);
-    }
-    return null;
   }
+
+  // If we get here, all stablecoins failed
+  console.error(`KyberSwap: No liquidity found for ${tokenSymbol} on any stablecoin pair`);
+  return null;
 }
 
 /**

@@ -156,10 +156,10 @@ For each pair of prices:
 
 ### Bybit (CEX)
 - **Endpoint:** `GET /v5/market/tickers`
-- **Pairs:** TSLAXUSDT, NVDAXUSDT (only these two available)
+- **Pairs:** TSLAXUSDT, NVDAXUSDT, AAPLXUSDT (SPYx not available)
 - **Update:** Real-time
 - **Limit:** Public endpoint, no auth needed
-- **Note:** SPYx and AAPLx not listed on Bybit
+- **Note:** All xStocks except SPYx are listed on Bybit
 
 ### KyberSwap (DEX - Ethereum)
 - **Endpoint:** `GET /ethereum/api/v1/routes`

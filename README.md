@@ -5,8 +5,8 @@ A real-time price comparison and arbitrage detection tool for tokenized stocks (
 ## Features
 
 - **Multi-Platform Price Tracking:**
-  - **CEXes:** Bybit (USDT pairs - TSLAx and NVDAx only)
-  - **DEXes:** KyberSwap on Ethereum (with RFQ support), Jupiter on Solana
+  - **CEXes:** Bybit (USDT pairs - TSLAx, NVDAx, AAPLx available)
+  - **DEXes:** KyberSwap on Ethereum (USDC pairs with RFQ support), Jupiter on Solana (USDC pairs)
   - **Traditional Markets:** Stock prices via Twelve Data API
   - **Note:** Kraken removed - xStocks tokens not available there
 
@@ -73,7 +73,7 @@ npm start
 The tool fetches prices from multiple sources:
 
 1. **Bybit:** Uses public spot market API for USDT trading pairs
-   - Note: Only TSLAx and NVDAx are listed (SPYx and AAPLx not available)
+   - Note: TSLAx, NVDAx, and AAPLx are available (SPYx not listed)
 2. **KyberSwap:** Queries the aggregator API for best routes on Ethereum
    - Includes both on-chain pool prices and off-chain RFQ (Request for Quote) from market makers
    - Automatically finds the best route across multiple DEXes

@@ -145,10 +145,9 @@ export default function Home() {
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 text-sm text-gray-400">
           <h3 className="font-semibold text-white mb-2">Data Sources:</h3>
           <ul className="space-y-1">
-            <li>• <strong>Bybit:</strong> Spot trading pairs (USDT)</li>
-            <li>• <strong>Kraken Pro:</strong> Convert feature (USD)</li>
-            <li>• <strong>KyberSwap:</strong> DEX aggregator on Ethereum (includes RFQ quotes)</li>
-            <li>• <strong>Jupiter:</strong> DEX aggregator on Solana</li>
+            <li>• <strong>Bybit:</strong> Spot trading pairs (USDT) - TSLAx, NVDAx, AAPLx (SPYx not available)</li>
+            <li>• <strong>KyberSwap:</strong> DEX aggregator on Ethereum (USDC pairs, includes RFQ quotes)</li>
+            <li>• <strong>Jupiter:</strong> DEX aggregator on Solana (USDC pairs)</li>
             <li>• <strong>Stock Market:</strong> Twelve Data API</li>
           </ul>
           <p className="mt-4 text-xs text-gray-500">
